@@ -1,6 +1,14 @@
+from config import *
+
 from pathlib import Path
 from flask import json
+from pyluach import dates ,parshios
 
+
+
+def parsha_exists(parsha_name: str) -> bool:
+    parasha_path = Path(__file__).parent / "data" / "parshiot" / parsha_name
+    return parasha_path.is_dir()
 
 
 def load_vortim_for_parsha(parsha_name: str) -> list[dict[str, str]] | None:
@@ -17,10 +25,10 @@ def load_vortim_for_parsha(parsha_name: str) -> list[dict[str, str]] | None:
     return vortim
 
 
-def load_single_vort(parsha_name: str, vort_id: str) -> dict[str, str] | str:
+def load_single_vort(parsha_name: str, vort_id: str) -> dict[str, str] | None:
     parasha_path = Path(__file__).parent / "data" / "parshiot" / parsha_name
     if not parasha_path.exists():
-        return "The parasha is not exists"
+        return None
     for vort in parasha_path.iterdir():
         if vort.is_file():
             with open(vort, "r", encoding="utf8") as file:
@@ -28,11 +36,23 @@ def load_single_vort(parsha_name: str, vort_id: str) -> dict[str, str] | str:
                 if the_vort["id"] == vort_id:
                     the_vort["is long"] = is_long(the_vort["text"])
                     return the_vort
-    return "The vort is not exists"
+    return None
 
 
 def is_long(text: str) -> bool:
     return len(text.split("\n")) >= 20
+
+
+def get_current_parsha() -> str | None:
+    hebrew_parasha = parshios.getparsha_string(dates.GregorianDate.today(), israel=True, hebrew=True)
+    return PARSHIOT_HEB_TO_ENG_SORTED[hebrew_parasha]
+print(get_current_parsha())
+
+
+
+
+
+
 
 
 """
