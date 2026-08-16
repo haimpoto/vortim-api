@@ -1,8 +1,7 @@
-from config import *
-
 from pathlib import Path
 from flask import json
 from pyluach import dates ,parshios
+import config
 
 
 
@@ -45,8 +44,7 @@ def is_long(text: str) -> bool:
 
 def get_current_parsha() -> str | None:
     hebrew_parasha = parshios.getparsha_string(dates.GregorianDate.today(), israel=True, hebrew=True)
-    return PARSHIOT_HEB_TO_ENG_SORTED[hebrew_parasha]
-print(get_current_parsha())
+    return config.PARSHIOT_HEB_TO_ENG_SORTED[hebrew_parasha]
 
 
 
