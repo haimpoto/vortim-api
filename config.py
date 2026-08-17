@@ -1,3 +1,5 @@
+SECRET_KEY = "haimpoto"
+
 PARSHIOT_HEB_TO_ENG_SORTED = {
     'אחרי מות': 'achrei_mot',
     'אמור': 'emor',
