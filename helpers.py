@@ -84,6 +84,27 @@ def create_token(username: str) -> str:
     return jwt.encode(payload, config.SECRET_KEY, algorithm="HS256")
 
 
+def decode_token(token: str) -> dict | None:
+    try:
+        decoded = jwt.decode(token, config.SECRET_KEY, algorithms=["HS256"])
+        return decoded
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None
+
+def load_admins() -> list[str]:
+    admins_path = Path(__file__).parent / "data" / "admins.json"
+    if not admins_path.exists():
+        return []
+    with open(admins_path, "r", encoding="utf8") as file:
+        return json.load(file)
+
+def is_admin(username: str) -> bool:
+    admins = load_admins()
+    return username in admins
+
+
 """
 helpers.py — כל פונקציות העזר של הפרויקט נמצאות כאן בלבד.
 app.py מייבא מכאן. אל תכתוב לוגיקה כבדה בתוך ה-routes עצמם.

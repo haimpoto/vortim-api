@@ -5,6 +5,16 @@ import config
 app = Flask(__name__)
 
 
+def get_current_user() -> str | None:
+    auth_header = request.headers.get("Authorization")
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1]
+        decoded = helpers.decode_token(token)
+        if decoded:
+            return decoded.get("username")
+    return None
+
+
 @app.route("/")
 def home():
     return {"status": "server is running"}, 200
@@ -20,6 +30,11 @@ def get_vortim_by_parasha(parsha_name: str) -> tuple[list[dict[str, str]] | dict
     vortim = helpers.load_vortim_for_parsha(parsha_name)
     if vortim is None:
         return {"error": f"{parsha_name} is not exists"}, 404
+    current_user = get_current_user()
+    if current_user is None:
+        for vort in vortim:
+            if vort.get("is long"):
+                vort["text"] = "log in if you wont this vort"
     return vortim, 200
 
 
@@ -30,6 +45,10 @@ def get_vort_by_parasha_by_id(parsha_name: str, vort_id: str) -> tuple[dict[str,
     vort = helpers.load_single_vort(parsha_name, vort_id)
     if vort is None:
         return {"error": f"{vort_id} is not exist"}, 404
+    if vort.get("is long"):
+        current_user = get_current_user()
+        if not current_user:
+            return {"error": "Long vortim are restricted to registered users"}, 403
     return vort, 200
 
 
